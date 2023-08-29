@@ -1,0 +1,57 @@
+name: Update opengl/ Files from zig-opengl Artifact
+
+on:
+  schedule:
+    - cron: '0 0 * * *'  # Run daily at midnight
+
+jobs:
+  update-opengl:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Download artifact
+      uses: aochmann/actions-download-artifact@v1.0.4
+      with:
+      repo: MasterQ32/zig-opengl
+      name: loaders
+      latest: true
+      path: loaders
+    
+    - name: Compare files
+      id: compare-files
+      run: |
+        for file in loaders/opengl/*; do
+          if [ -f "$file" ]; then
+            if ! cmp -s "$file" "opengl/$(basename "$file")"; then
+              echo "File $file has changed."
+              echo "::set-output name=changed::true"
+            else
+              echo "File $file is up to date."
+              echo "::set-output name=changed::false"
+            fi
+          fi
+        done
+
+    - name: Update files
+      if: steps.compare-files.outputs.changed == 'true'
+      run: |
+        for file in loaders/opengl/*; do
+          if [ -f "$file" ]; then
+            mv "$file" "opengl/$(basename "$file")"
+          fi
+        done
+
+    - name: Create Pull Request
+      if: steps.compare-files.outputs.changed == 'true'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        branch: update-opengl
+        commit-message: "Update opengl/ files"
+        title: "Update opengl/ files"
+        body: "This pull request updates opengl/ files"
+        labels: "automated"
+        base: master
+        files: |
+          opengl/
+

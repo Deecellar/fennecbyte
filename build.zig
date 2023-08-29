@@ -294,10 +294,10 @@ pub fn build(b: *std.Build) void {
 
         // We create a file with all the links to the documentation using relative paths
         // It's a md which basically is a list of links to the documentations generated for gh-pages
-        const fennecbyte_doc = "# FennecByte\n Description: A demoscene framework for zig \n [Documentation](/fenecbyte)\n";
+        const fennecbyte_doc = "# FennecByte\n Description: A demoscene framework for zig \n [Documentation](./fennecbyte)\n";
         const calculate_max_memory = mem: {
             var max_memory: usize = 0;
-            const extra_data = "# \n\n\n [Documentation](/) Description: ";
+            const extra_data = "# \n\n\n [Documentation](./) Description: ";
             inline for (@typeInfo(AllTools).Struct.fields) |field| {
                 const tool = @field(tools, field.name);
                 const description = tool.description;
@@ -338,21 +338,21 @@ pub fn build(b: *std.Build) void {
             const tool = @field(tools, field.name);
             data.writer().print("# {s}", .{tool.name}) catch unreachable;
             data.writer().print("\n Description: {?s}\n", .{tool.description}) catch unreachable;
-            data.writer().print("[Documentation](/{s})\n", .{tool.name}) catch unreachable;
+            data.writer().print("[Documentation](./{s})\n", .{tool.name}) catch unreachable;
         }
 
         inline for (@typeInfo(AllExamples).Struct.fields) |field| {
             const example = @field(examples, field.name);
             data.writer().print("# {s}", .{example.name}) catch unreachable;
             data.writer().print("\n Description: {?s}\n", .{example.description}) catch unreachable;
-            data.writer().print("[Documentation](/{s})\n", .{example.name}) catch unreachable;
+            data.writer().print("[Documentation](./{s})\n", .{example.name}) catch unreachable;
         }
 
         inline for (@typeInfo(AllBenchmarks).Struct.fields) |field| {
             const benchmark = @field(benchmarks, field.name);
             data.writer().print("# {s}", .{benchmark.name}) catch unreachable;
             data.writer().print("\n Description: {?s}\n", .{benchmark.description}) catch unreachable;
-            data.writer().print("[Documentation](/{s})\n", .{benchmark.name}) catch unreachable;
+            data.writer().print("[Documentation](./{s})\n", .{benchmark.name}) catch unreachable;
         }
 
         const doc_file = b.addWriteFile(b.pathJoin(&.{ b.install_prefix, "docs", "index.md" }), data.items);

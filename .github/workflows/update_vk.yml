@@ -39,31 +39,50 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pullRequests } = await github.pulls.list({
+            const pullRequests = await github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
               head: 'update-vkxml',
               base: 'master'
             });
-            if (pullRequests.length > 0) {
-              const pullRequest = pullRequests[0];
-              const { data: commits } = await github.pulls.listCommits({
+
+            if (pullRequests.data.length > 0) {
+              const pullRequest = pullRequests.data[0];
+              const commits = await github.pulls.listCommits({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pullRequest.number
               });
-              const commit = commits[0];
+
+              const commit = commits.data[0];
+              const commitMessage = commit.commit.message;
+              const commitSha = commit.sha;
+
+              const updateVkXmlCommit = await github.git.createCommit({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                message: commitMessage,
+                tree: commitSha,
+                parents: [pullRequest.head.sha]
+              });
+
               await github.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 pull_number: pullRequest.number,
-                body: `Update vk.xml\n\n${commit.commit.message}`,
-                commit_title: commit.commit.message,
-                commit_message: commit.commit.message,
-                sha: commit.sha
+                sha: updateVkXmlCommit.data.sha
               });
             } else {
+              // We need to create a new branch called update-vkxml
+              // and push the changes to it
+              const newBranch = await github.git.createRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'refs/heads/update-vkxml',
+                sha: context.sha
+              });
+
               await github.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,

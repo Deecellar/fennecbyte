@@ -11,7 +11,7 @@ jobs:
 
     steps:
     - name: Download artifact
-      uses: aochmann/actions-download-artifact@v1.0.4
+      uses: aochmann/actions-download-artifact@1.0.4
       with:
         repo: MasterQ32/zig-opengl
         name: loaders
@@ -82,4 +82,3 @@ jobs:
               body: 'Update opengl/ Files from zig-opengl Artifact'
             });
           }
-          

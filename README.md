@@ -67,3 +67,4 @@ read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information. (PENDING)
 ## License
 This project is licensed under the MIT license.
 See the `LICENSE` file for more information.
+When contributing, you agree to license your contributions under the MIT license. 

@@ -39,19 +39,21 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: branches } = await github.git.listRefs({
+            const branches = await github.git.getRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              namespace: 'heads',
-              ref: 'vkxml-update'
+              ref: 'heads/vkxml-update'
             });
-            if (branches.length > 0) {
-              console.log('Branch vkxml-update exists');
-              console.log('::set-output name=branch_exists::true');
-            } else {
+            // If the branch does not exist, the API returns 404
+            if (branches.status === 404) {
               console.log('Branch vkxml-update does not exist');
               console.log('::set-output name=branch_exists::false');
+            } else {
+              console.log('Branch vkxml-update exists');
+              console.log('::set-output name=branch_exists::true');
             }
+
+
       - name: Create Branch vkxml-update if it doesn't exists
         if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'false'
         uses: actions/github-script@v6

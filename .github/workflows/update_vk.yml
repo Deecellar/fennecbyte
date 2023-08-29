@@ -57,7 +57,7 @@ jobs:
             }
 
       - name: Create Branch vkxml-update if it doesn't exists
-        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'false'
+        if: steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'false'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}

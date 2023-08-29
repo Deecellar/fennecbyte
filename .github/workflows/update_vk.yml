@@ -39,21 +39,21 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-          try {
-                        const branches = await github.rest.git.getRef({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              ref: 'heads/vkxml-update'
-            });
-            console.log('Branch vkxml-update exists');
-          }
-          catch (error) {
-            if (error.status === 404) {
-              console.log('Branch vkxml-update does not exist');
-              console.log('::set-output name=branch_exists::false');
+            try {
+                          const branches = await github.rest.git.getRef({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                ref: 'heads/vkxml-update'
+              });
+              console.log('Branch vkxml-update exists');
             }
-            throw error;
-          }
+            catch (error) {
+              if (error.status === 404) {
+                console.log('Branch vkxml-update does not exist');
+                console.log('::set-output name=branch_exists::false');
+              }
+              throw error;
+            }
 
       - name: Create Branch vkxml-update if it doesn't exists
         if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'false'

@@ -13,10 +13,10 @@ jobs:
     - name: Download artifact
       uses: aochmann/actions-download-artifact@v1.0.4
       with:
-      repo: MasterQ32/zig-opengl
-      name: loaders
-      latest: true
-      path: loaders
+        repo: MasterQ32/zig-opengl
+        name: loaders
+        latest: true
+        path: loaders
     
     - name: Compare files
       id: compare-files
@@ -42,7 +42,7 @@ jobs:
           fi
         done
 
-    - name: Create Pull Request
+    - name: if previous PR exists, add a commit to it instead of creating a new one otherwise create a new PR
       if: steps.compare-files.outputs.changed == 'true'
       uses: actions/github-script@v6
       with:
@@ -62,20 +62,24 @@ jobs:
               repo: context.repo.repo,
               pull_number: pullRequest.number
             });
-            const commit = commits[commits.length - 1];
-            await github.repos.createCommitComment({
+            const commit = commits[0];
+            await github.pulls.update({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              commit_sha: commit.sha,
-              body: 'Update opengl/ files'
+              pull_number: pullRequest.number,
+              body: `Update opengl/ Files from zig-opengl Artifact\n\n${commit.commit.message}`,
+              commit_title: commit.commit.message,
+              commit_message: commit.commit.message,
+              sha: commit.sha
             });
           } else {
             await github.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              title: 'Update opengl/ files',
+              title: 'Update opengl/ Files from zig-opengl Artifact',
               head: 'update-opengl',
               base: 'master',
-              body: 'Update opengl/ files'
+              body: 'Update opengl/ Files from zig-opengl Artifact'
             });
           }
+          

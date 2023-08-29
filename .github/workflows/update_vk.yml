@@ -53,24 +53,23 @@ jobs:
                 repo: context.repo.repo,
                 pull_number: pullRequest.number
               });
-              const commit = commits[commits.length - 1];
-              await github.repos.createCommitComment({
+              const commit = commits[0];
+              await github.pulls.update({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
-                commit_sha: commit.sha,
-                body: 'Update vk.xml'
+                pull_number: pullRequest.number,
+                body: `Update vk.xml\n\n${commit.commit.message}`,
+                commit_title: commit.commit.message,
+                commit_message: commit.commit.message,
+                sha: commit.sha
               });
-              core.setOutput('pr_number', pullRequest.number);
-            }
-            else {
-              const { data: pullRequest } = await github.pulls.create({
+            } else {
+              await github.pulls.create({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
                 title: 'Update vk.xml',
                 head: 'update-vkxml',
                 base: 'master',
-                body: 'This pull request updates vk.xml'
+                body: 'Update vk.xml'
               });
-              core.setOutput('pr_number', pullRequest.number);
             }
-

@@ -33,62 +33,82 @@ jobs:
         run: |
           mv latest_vk.xml vk.xml
 
-      - name: if previous PR exists, add a commit to it instead of creating a new one otherwise create a new PR
+      - name: Check branch vkxml-update exists
         if: steps.compare-vkxml.outputs.changed == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const pullRequests = await github.pulls.list({
+            const { data: branches } = await github.git.listRefs({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              namespace: 'heads',
+              ref: 'vkxml-update'
+            });
+            if (branches.length > 0) {
+              console.log('Branch vkxml-update exists');
+              console.log('::set-output name=branch_exists::true');
+            } else {
+              console.log('Branch vkxml-update does not exist');
+              console.log('::set-output name=branch_exists::false');
+            }
+      - name: Create Branch vkxml-update if it doesn't exists
+        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: branch } = await github.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: 'refs/heads/vkxml-update',
+              sha: context.sha
+            });
+            console.log('Branch vkxml-update created');
+            console.log('::set-output name=branch_created::true');
+      - name: Commit and Push Changes to Branch vkxml-update
+        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'true'
+        uses: EndBug/add-and-commit@v7
+        with:
+          add: 'vk.xml'
+          author_name: 'Update vk.xml'
+          author_email: 'github-actions[bot]@users.noreply.github.com'
+          message: 'Update vk.xml'
+          force: true
+          push: true
+      - name: Check if PR exists
+        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequests } = await github.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
-              head: 'update-vkxml',
+              head: 'vkxml-update',
               base: 'master'
             });
-
-            if (pullRequests.data.length > 0) {
-              const pullRequest = pullRequests.data[0];
-              const commits = await github.pulls.listCommits({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pullRequest.number
-              });
-
-              const commit = commits.data[0];
-              const commitMessage = commit.commit.message;
-              const commitSha = commit.sha;
-
-              const updateVkXmlCommit = await github.git.createCommit({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                message: commitMessage,
-                tree: commitSha,
-                parents: [pullRequest.head.sha]
-              });
-
-              await github.pulls.update({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                pull_number: pullRequest.number,
-                sha: updateVkXmlCommit.data.sha
-              });
+            if (pullRequests.length > 0) {
+              console.log('PR exists');
+              console.log('::set-output name=pr_exists::true');
             } else {
-              // We need to create a new branch called update-vkxml
-              // and push the changes to it
-              const newBranch = await github.git.createRef({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                ref: 'refs/heads/update-vkxml',
-                sha: context.sha
-              });
-
-              await github.pulls.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                title: 'Update vk.xml',
-                head: 'update-vkxml',
-                base: 'master',
-                body: 'Update vk.xml'
-              });
+              console.log('PR does not exist');
+              console.log('::set-output name=pr_exists::false');
             }
+      - name: Create PR if it doesn't exists
+        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'true' && steps.check-if-pr-exists.outputs.pr_exists == 'false'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequest } = await github.pulls.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Update vk.xml',
+              head: 'vkxml-update',
+              base: 'master',
+              body: 'Update vk.xml'
+            });
+            console.log('PR created');
+            console.log('::set-output name=pr_created::true');

@@ -51,6 +51,7 @@ jobs:
               if (error.status === 404) {
                 console.log('Branch vkxml-update does not exist');
                 console.log('::set-output name=branch_exists::false');
+                return;
               }
               throw error;
             }

@@ -62,7 +62,7 @@ zig build -Ddocs
 ```
 
 ## Contributing
-read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information.
+read the [CONTRIBUTING.md](CONTRIBUTING.md) file for more information. (PENDING)
 
 ## License
 This project is licensed under the MIT license.

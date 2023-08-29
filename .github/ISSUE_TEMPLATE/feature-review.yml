@@ -1,7 +1,7 @@
 name: Feature Review
-description: Review a proposed feature implementation
+description: Review a feature already implemented for further enhancement
 title: "[Review]: "
-labels: ["review"]
+labels: ["enhancement", "review"]
 body:
   - type: textarea
     id: reviewed-feature
@@ -34,8 +34,8 @@ body:
       description: Commit hash or ID of the feature implementation.
       placeholder: ex. abcd123
     validations:
-      required: true
-  - type: input
+      required: false
+  - type: textarea
     id: repository-link
     attributes:
       label: Repository Link

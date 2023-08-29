@@ -1,7 +1,7 @@
 name: Bug Report
-description: File a bug report
-title: "[Bug]: "
-labels: ["bug", "triage"]
+description: Create a bug report to help improve the project
+title: "[BUG] Short Description of the Bug"
+labels: ["bug"]
 body:
   - type: markdown
     attributes:

@@ -50,7 +50,7 @@ body:
       description: Review the following aspects of the feature implementation.
       options:
         - label: Performance impact (required)
-            required: true
+          required: true
         - label: Code quality and style (required)
         - label: Compatibility with Zig version 0.x (required)
         - label: Testing and bug-free implementation (required)

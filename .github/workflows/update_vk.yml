@@ -39,7 +39,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const branches = await github.git.getRef({
+            const branches = await github.rest.git.getRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'heads/vkxml-update'
@@ -60,7 +60,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: branch } = await github.git.createRef({
+            const { data: branch } = await github.rest.git.createRef({
               owner: context.repo.owner,
               repo: context.repo.repo,
               ref: 'refs/heads/vkxml-update',
@@ -68,23 +68,13 @@ jobs:
             });
             console.log('Branch vkxml-update created');
             console.log('::set-output name=branch_created::true');
-      - name: Commit and Push Changes to Branch vkxml-update
-        if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'true'
-        uses: EndBug/add-and-commit@v7
-        with:
-          add: 'vk.xml'
-          author_name: 'Update vk.xml'
-          author_email: 'github-actions[bot]@users.noreply.github.com'
-          message: 'Update vk.xml'
-          force: true
-          push: true
       - name: Check if PR exists
         if: steps.compare-vkxml.outputs.changed == 'true' && steps.check-branch-vkxml-update-exists.outputs.branch_exists == 'true'
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pullRequests } = await github.pulls.list({
+            const { data: pullRequests } = await github.rest.pulls.list({
               owner: context.repo.owner,
               repo: context.repo.repo,
               state: 'open',
@@ -104,7 +94,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const { data: pullRequest } = await github.pulls.create({
+            const { data: pullRequest } = await github.rest.pulls.create({
               owner: context.repo.owner,
               repo: context.repo.repo,
               title: 'Update vk.xml',

@@ -3,6 +3,7 @@ name: Update vk.xml and Create Pull Request
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight
+    - workflow_dispatch:
 
 jobs:
   update-vkxml:
@@ -32,17 +33,44 @@ jobs:
         run: |
           mv latest_vk.xml vk.xml
 
-      - name: Create Pull Request
+      - name: if previous PR exists, add a commit to it instead of creating a new one otherwise create a new PR
         if: steps.compare-vkxml.outputs.changed == 'true'
-        uses: peter-evans/create-pull-request@v5
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          branch: update-vkxml
-          commit-message: "Update vk.xml"
-          title: "Update vk.xml"
-          body: "This pull request updates vk.xml"
-          labels: "automated"
-          base: master
-          files: |
-            vk.xml
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const { data: pullRequests } = await github.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              head: 'update-vkxml',
+              base: 'master'
+            });
+            if (pullRequests.length > 0) {
+              const pullRequest = pullRequests[0];
+              const { data: commits } = await github.pulls.listCommits({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pullRequest.number
+              });
+              const commit = commits[commits.length - 1];
+              await github.repos.createCommitComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                commit_sha: commit.sha,
+                body: 'Update vk.xml'
+              });
+              core.setOutput('pr_number', pullRequest.number);
+            }
+            else {
+              const { data: pullRequest } = await github.pulls.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title: 'Update vk.xml',
+                head: 'update-vkxml',
+                base: 'master',
+                body: 'This pull request updates vk.xml'
+              });
+              core.setOutput('pr_number', pullRequest.number);
+            }
 

@@ -199,7 +199,7 @@ pub fn build(b: *std.Build) void {
         example_exe.addModule(libs.core.name, core_mod);
         examples_array.appendAssumeCapacity(example_exe);
         const install_example = b.addInstallArtifact(example_exe, .{});
-        example_step.dependOn(&install_example.step);        
+        example_step.dependOn(&install_example.step);
     }
     if (options.examples) {
         b.getInstallStep().dependOn(example_step);
@@ -220,7 +220,6 @@ pub fn build(b: *std.Build) void {
         benchmarks_array.appendAssumeCapacity(benchmark_exe);
         const install_benchmark = b.addInstallArtifact(benchmark_exe, .{});
         benchmark_step.dependOn(&install_benchmark.step);
-
     }
     if (options.benchmarks) {
         b.getInstallStep().dependOn(benchmark_step);
@@ -292,10 +291,79 @@ pub fn build(b: *std.Build) void {
         doc_step.dependOn(tool_step);
         doc_step.dependOn(example_step);
         doc_step.dependOn(benchmark_step);
+
+        // We create a file with all the links to the documentation using relative paths
+        // It's a md which basically is a list of links to the documentations generated for gh-pages
+        const fennecbyte_doc = "# FennecByte\n Description: A demoscene framework for zig \n [Documentation](#/fenecbyte)\n";
+        const calculate_max_memory = mem: {
+            var max_memory: usize = 0;
+            const extra_data = "# \n Description: \n [Documentation](\n](\n)";
+            inline for (@typeInfo(AllTools).Struct.fields) |field| {
+                const tool = @field(tools, field.name);
+                const description = tool.description;
+                if (description) |desc| {
+                    max_memory += desc.len;
+                }
+                max_memory += tool.name.len;
+            }
+            inline for (@typeInfo(AllExamples).Struct.fields) |field| {
+                const example = @field(examples, field.name);
+                const description = example.description;
+                if (description) |desc| {
+                    max_memory += desc.len;
+                }
+                max_memory += example.name.len;
+            }
+            inline for (@typeInfo(AllBenchmarks).Struct.fields) |field| {
+                const benchmark = @field(benchmarks, field.name);
+                const description = benchmark.description;
+                if (description) |desc| {
+                    max_memory += desc.len;
+                }
+                max_memory += benchmark.name.len;
+            }
+            max_memory += extra_data.len * 3;
+            max_memory += fennecbyte_doc.len;
+            break :mem max_memory;
+        };
+        // We write per each library a link to the documentation
+        // The format is the following
+        // # Library Name
+        // Description: <description>
+        // [Documentation](<link to the documentation>)
+        // We do this for all the libraries and tools
+        var data = std.ArrayList(u8).initCapacity(b.allocator, calculate_max_memory) catch @panic("Failed to allocate memory");
+        data.appendSliceAssumeCapacity(fennecbyte_doc);
+        inline for (@typeInfo(AllTools).Struct.fields) |field| {
+            const tool = @field(tools, field.name);
+            data.writer().print("# {s}", .{tool.name}) catch unreachable;
+            data.writer().print("\n Description: {?s}\n", .{tool.description}) catch unreachable;
+            data.writer().print("[Documentation](#/{s})", .{tool.name}) catch unreachable;
+            data.writer().writeAll("\n") catch unreachable;
+        }
+
+        inline for (@typeInfo(AllExamples).Struct.fields) |field| {
+            const example = @field(examples, field.name);
+            data.writer().print("# {s}", .{example.name}) catch unreachable;
+            data.writer().print("\n Description: {?s}\n", .{example.description}) catch unreachable;
+            data.writer().print("[Documentation](#/{s})", .{example.name}) catch unreachable;
+            data.writer().writeAll("\n") catch unreachable;
+        }
+
+        inline for (@typeInfo(AllBenchmarks).Struct.fields) |field| {
+            const benchmark = @field(benchmarks, field.name);
+            data.writer().print("# {s}", .{benchmark.name}) catch unreachable;
+            data.writer().print("\n Description: {?s}\n", .{benchmark.description}) catch unreachable;
+            data.writer().print("[Documentation](#/{s})", .{benchmark.name}) catch unreachable;
+            data.writer().writeAll("\n") catch unreachable;
+        }
+
+        const doc_file = b.addWriteFile(b.pathJoin(&.{ b.install_prefix, "docs", "index.md" }), data.items);
+        doc_step.dependOn(&doc_file.step);
         b.getInstallStep().dependOn(doc_step);
     }
 
-    const remove_docs = b.addRemoveDirTree(b.pathJoin(&.{b.install_prefix, "docs"}));
+    const remove_docs = b.addRemoveDirTree(b.pathJoin(&.{ b.install_prefix, "docs" }));
     b.getUninstallStep().dependOn(&remove_docs.step);
 
     // Every Lib and Tool will be tested here
@@ -322,9 +390,6 @@ pub fn build(b: *std.Build) void {
         });
         test_step.dependOn(&tool_test.step);
     }
-
-
-
 }
 
 const FennecByteOptions = struct {
@@ -337,6 +402,7 @@ const FennecByteOptions = struct {
 const FennecByteStartCode = struct {
     name: []const u8,
     src_dir: []const u8,
+    description: ?[]const u8 = null,
 };
 const AllLibraries = struct {
     core: FennecByteStartCode = .{
@@ -385,22 +451,27 @@ const AllTools = struct {
     composer: FennecByteStartCode = .{
         .name = "composer",
         .src_dir = "src/toolbox/composer.zig",
+        .description = "A tool to compose music for the synth library",
     },
     executable_compressor: FennecByteStartCode = .{
         .name = "executable_compressor",
         .src_dir = "src/toolbox/executable_compressor.zig",
+        .description = "A tool to compress executables into it's minimum size",
     },
     level_editor: FennecByteStartCode = .{
         .name = "level_editor",
         .src_dir = "src/toolbox/level_editor.zig",
+        .description = "A tool to create levels generated for the fox library",
     },
     mesh_editor: FennecByteStartCode = .{
         .name = "mesh_editor",
         .src_dir = "src/toolbox/mesh_editor.zig",
+        .description = "A tool to create meshes for the fox library",
     },
     shader_reduce: FennecByteStartCode = .{
         .name = "shader_reduce",
         .src_dir = "src/toolbox/shader_reduce.zig",
+        .description = "A tool to reduce the size of shaders",
     },
 };
 
@@ -408,6 +479,7 @@ const AllExamples = struct {
     yump: FennecByteStartCode = .{
         .name = "yump",
         .src_dir = "examples/yump.zig",
+        .description = "A simple demostration on all the features in fenecbyte",
     },
 };
 
@@ -415,6 +487,7 @@ const AllBenchmarks = struct {
     bench: FennecByteStartCode = .{
         .name = "bench",
         .src_dir = "benchmarks/bench.zig",
+        .description = "Default benchmark for fennecbyte",
     },
 };
 

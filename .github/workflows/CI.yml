@@ -32,10 +32,14 @@ jobs:
       - run: zig env
       
       - name: Build
-        run: zig build -Dtools -Dexamples -Ddocs
+        run: zig build -Dtools -Dexamples -Dbenchmarks
 
       - name: Run Tests
         run: zig build test -Dtools -Dexamples 
+
+      - name: Generate Docs
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: zig build -Ddocs
 
       - name: move zig-out/docs to new folder docs
         if: ${{ matrix.os == 'ubuntu-latest' }}

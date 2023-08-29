@@ -3,7 +3,7 @@ name: Update opengl/ Files from zig-opengl Artifact
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight
-    - workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   update-opengl:

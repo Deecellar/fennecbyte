@@ -3,7 +3,7 @@ name: Update vk.xml and Create Pull Request
 on:
   schedule:
     - cron: '0 0 * * *'  # Run daily at midnight
-    - workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   update-vkxml:

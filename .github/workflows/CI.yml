@@ -20,8 +20,6 @@ jobs:
     steps:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v3
-        with:
-          submodules: true
       
       - name: Setup Zig
       # You may pin to the exact commit or the version.
@@ -34,13 +32,17 @@ jobs:
       - run: zig env
       
       - name: Build
-        run: zig build --verbose
+        run: zig build -Dtools -Dexamples -Ddocs
 
       - name: Run Tests
         run: zig build test -Dtools -Dexamples 
+
+      - name: move zig-out/docs to new folder docs
+        if: ${{ matrix.os == 'ubuntu-latest' }}
+        run: mv zig-out/docs docs
      
       - name: Deploy Github Pages
         if: ${{ matrix.os == 'ubuntu-latest' }}
         uses: rayluo/github-pages-overwriter@v1.2
         with:
-          source-directory: public2
+          source-directory: docs

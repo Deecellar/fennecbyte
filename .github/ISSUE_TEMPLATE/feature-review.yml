@@ -43,7 +43,7 @@ body:
       placeholder: Repository link...
     validations:
       required: false
-  - type: checklist
+  - type: textarea
     id: review-checklist
     attributes:
       label: Review Checklist

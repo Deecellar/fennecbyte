@@ -31,7 +31,7 @@ body:
       placeholder: Describe the steps here...
     validations:
       required: true
-  - type: input
+  - type: textarea
     id: reproduction-code
     attributes:
       label: Code or Repository

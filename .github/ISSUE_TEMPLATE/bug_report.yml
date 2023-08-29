@@ -1,0 +1,61 @@
+name: Bug Report
+description: Create a bug report to help improve the project
+title: "[BUG] Short Description of the Bug"
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: input
+    id: zig-version
+    attributes:
+      label: Zig Version
+      description: What version of Zig are you using?
+      placeholder: ex. 0.8.0
+    validations:
+      required: true
+  - type: input
+    id: commit-hash
+    attributes:
+      label: Commit Hash
+      description: Where did the error occur? (Commit hash or url)
+      placeholder: ex. abcd123
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to Reproduce
+      description: Please describe the steps to reproduce the bug.
+      placeholder: Describe the steps here...
+    validations:
+      required: true
+  - type: input
+    id: reproduction-code
+    attributes:
+      label: Code or Repository
+      description: Provide code or a repository that reproduces the bug.
+      placeholder: Code or repository link...
+    validations:
+      required: false
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What did you expect to happen?
+      placeholder: Describe the expected behavior...
+    validations:
+      required: true
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: If applicable, add screenshots to help explain the problem.
+      placeholder: Attach screenshots here...
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      description: Any other context about the problem.
+      placeholder: Add additional context...

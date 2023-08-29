@@ -49,12 +49,12 @@ body:
       label: Review Checklist
       description: Review the following aspects of the feature implementation.
       options:
-        - label: Performance impact (required)
+        - label: Performance impact 
           required: true
-        - label: Code quality and style (required)
-        - label: Compatibility with Zig version 0.x (required)
-        - label: Testing and bug-free implementation (required)
-        - label: Documentation completeness (required)
+        - label: Code quality and style 
+        - label: Compatibility with Zig version 0.x 
+        - label: Testing and bug-free implementation 
+        - label: Documentation completeness 
     validations:
       required: true
   - type: textarea

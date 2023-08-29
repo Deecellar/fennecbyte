@@ -36,7 +36,7 @@ ideally everything should be relativily compatible with the zig standard library
 To build the framework, you will need to have zig master installed.
 Download the source code, and run the following commands:
 ```sh
-zig build -Drelease-safe
+zig build -Doptimize=ReleaseSafe
 ```
 This will build the framework C bindings in case you need them.
 
@@ -44,21 +44,21 @@ This will build the framework C bindings in case you need them.
 The examples are located in the `examples` directory.
 To build them, you will need to have the framework built with the `examples` flag enabled.
 ```sh
-zig build -Drelease-safe -Dexamples
+zig build -Doptimize=ReleaseSafe -Dexamples
 ```
 
 ## Tools
 The tools are located in the `tools` directory.
 To build them, you will need to have the framework built with the `tools` flag enabled.
 ```sh
-zig build -Drelease-safe -Dtools
+zig build -Doptimize=ReleaseSafe -Dtools
 ```
 
 ## Documentation
 The documentation is located in the `docs` directory.
 To build it, you will need to have the framework built with the `docs` flag enabled.
 ```sh
-zig build -Drelease-safe -Ddocs
+zig build -Ddocs
 ```
 
 ## Contributing

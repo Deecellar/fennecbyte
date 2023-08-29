@@ -1,0 +1,64 @@
+name: Feature Review
+description: Review a proposed feature implementation
+title: "[Review]: "
+labels: ["review"]
+body:
+  - type: textarea
+    id: reviewed-feature
+    attributes:
+      label: Reviewed Feature
+      description: Specify the feature being reviewed.
+      placeholder: Describe the reviewed feature...
+    validations:
+      required: true
+  - type: textarea
+    id: feature-description
+    attributes:
+      label: Feature Description
+      description: Describe the implemented feature.
+      placeholder: Describe the feature here...
+    validations:
+      required: true
+  - type: input
+    id: zig-version
+    attributes:
+      label: Zig Version
+      description: What version of Zig was used for the implementation?
+      placeholder: ex. 0.8.0
+    validations:
+      required: true
+  - type: input
+    id: commit-hash
+    attributes:
+      label: Commit Hash
+      description: Commit hash or ID of the feature implementation.
+      placeholder: ex. abcd123
+    validations:
+      required: true
+  - type: input
+    id: repository-link
+    attributes:
+      label: Repository Link
+      description: Provide a link to the repository with the feature implementation.
+      placeholder: Repository link...
+    validations:
+      required: false
+  - type: checklist
+    id: review-checklist
+    attributes:
+      label: Review Checklist
+      description: Review the following aspects of the feature implementation.
+      options:
+        - Code quality and style
+        - Compatibility with Zig version 0.x
+        - Performance impact
+        - Testing and bug-free implementation
+        - Documentation completeness
+    validations:
+      required: true
+  - type: textarea
+    id: additional-comments
+    attributes:
+      label: Additional Comments
+      description: Add any additional comments or feedback regarding the feature implementation.
+      placeholder: Add additional comments...
